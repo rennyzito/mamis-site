@@ -6,9 +6,10 @@ from wtforms import StringField, SubmitField, EmailField, TelField, TextAreaFiel
 from wtforms.validators import DataRequired, Length
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
+import os
 
 
-URL = "https://api.npoint.io/7e05301098625b40878d"
+URL = os.environ.get("ARTICLE_DATA", "https://api.npoint.io/7e05301098625b40878d")
 article_data = requests.get(URL).json()
 
 post_objects = []
@@ -21,9 +22,9 @@ for post in article_data:
     post_objects.append(post_obj)
 
 app = Flask(__name__)
-app.secret_key = "mamae-maioral-te-amo"
+app.secret_key = os.environ.get("FLASK_KEY", "mamae-maioral-te-amo")
 bootstrap = Bootstrap5(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///contact.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///contact.db")
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -35,7 +36,6 @@ class Contact(db.Model):
     phone = db.Column(db.String(50), nullable=False)
     text = db.Column(db.String(500), nullable=False)
 
-
 class ContactForm(FlaskForm):
     name = StringField(label="Nome Completo", validators=[DataRequired()])
     email = EmailField(label="Email", validators=[DataRequired()])
@@ -44,7 +44,7 @@ class ContactForm(FlaskForm):
     submit = SubmitField(label="Enviar")
 
 
-@app.route('/home', methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST"])
 def home():
     contactform = ContactForm()
     if contactform.validate_on_submit():
@@ -69,4 +69,4 @@ def get_article(num):
     return render_template("artigos.html", full_post=requested_post)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
