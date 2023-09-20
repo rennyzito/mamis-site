@@ -1,0 +1,38 @@
+{% include "header.html" %}
+
+        <!-- Page Header-->
+        <header class="newmasthead" style="background-image: url( '{{full_post.imagem_url}}' )">
+            <div class="container px-4 px-lg-5 h-100">
+                <div class="row gx-4 gx-lg-5 h-100 align-items-center justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <div class="post-heading ">
+                            <h1 class="title-article font-weight-bold">{{ full_post.titulo }}</h1>
+                            <h3 class="subtitle-article">{{ full_post.subtitulo }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Post Content-->
+        <article class="mt-5">
+            <div class="container px-4 px-lg-5">
+                <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="col-md-10 col-lg-8 col-xl-7">
+                        <p class="body-article"> {{ full_post.intro }} </p>
+                        <h3>{{ full_post.subtitulo1 }}</h3>
+                        <p class="body-article"> {{ full_post.corpo1 }} </p>
+                        <h3>{{ full_post.subtitulo2 }}</h3>
+                        <p class="body-article"> {{ full_post.corpo2 }} </p>
+                        <h3>{{ full_post.subtitulo3 }}</h3>
+                        <p class="body-article"> {{ full_post.corpo3 }} </p>
+                        <h3>{{ full_post.subtitulo4 }}</h3>
+                        <p class="body-article"> {{ full_post.corpo4 }} </p>
+                        <p class="body-article"> {{ full_post.conclu }} </p>
+                        <span class="text-black-50">
+                                Postado por {{ full_post.autor }} em {{ full_post.date }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </article>
+{% include "footer.html" %}
