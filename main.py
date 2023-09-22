@@ -24,12 +24,12 @@ for post in article_data:
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_KEY", "mamae-maioral-te-amo")
 bootstrap = Bootstrap5(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///contact_db_xza9.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///contact.db")
 db = SQLAlchemy()
 db.init_app(app)
 
 ##CREATE TABLE
-class Contact(db.Table):
+class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(250), nullable=False)
