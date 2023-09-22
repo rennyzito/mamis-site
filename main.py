@@ -29,7 +29,7 @@ db = SQLAlchemy()
 db.init_app(app)
 
 ##CREATE TABLE
-class Contact(db.Model):
+class Contact(db.Table):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
     email = db.Column(db.String(250), nullable=False)
