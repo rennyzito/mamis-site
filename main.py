@@ -24,7 +24,7 @@ for post in article_data:
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_KEY", "mamae-maioral-te-amo")
 bootstrap = Bootstrap5(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///contact.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///contact_db_xza9.db")
 db = SQLAlchemy()
 db.init_app(app)
 
@@ -35,6 +35,9 @@ class Contact(db.Model):
     email = db.Column(db.String(250), nullable=False)
     phone = db.Column(db.String(50), nullable=False)
     text = db.Column(db.String(500), nullable=False)
+
+# with app.app_context():
+#     db.create_all()
 
 class ContactForm(FlaskForm):
     name = StringField(label="Nome Completo", validators=[DataRequired()])
