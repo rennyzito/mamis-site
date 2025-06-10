@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request
+from dotenv import load_dotenv
+load_dotenv()
+
+from flask import Flask, render_template, request, flash, redirect, url_for
 import requests
 from post import Post
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, EmailField, TelField, TextAreaField
 from wtforms.validators import DataRequired, Length
 from flask_bootstrap import Bootstrap5
-from flask_sqlalchemy import SQLAlchemy
 import os
-
+import smtplib
 
 URL = os.environ.get("ARTICLE_DATA", "https://api.npoint.io/7e05301098625b40878d")
 article_data = requests.get(URL).json()
@@ -24,20 +26,6 @@ for post in article_data:
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_KEY", "mamae-maioral-te-amo")
 bootstrap = Bootstrap5(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI", "sqlite:///contact.db")
-db = SQLAlchemy()
-db.init_app(app)
-
-##CREATE TABLE
-class Contact(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250), nullable=False)
-    email = db.Column(db.String(250), nullable=False)
-    phone = db.Column(db.String(50), nullable=False)
-    text = db.Column(db.String(500), nullable=False)
-
-# with app.app_context():
-#     db.create_all()
 
 class ContactForm(FlaskForm):
     name = StringField(label="Nome Completo", validators=[DataRequired()])
@@ -45,6 +33,61 @@ class ContactForm(FlaskForm):
     phone = TelField(label="Telefone", validators=[DataRequired(), Length(min=8)])
     text = TextAreaField(label="Mensagem", validators=[DataRequired()])
     submit = SubmitField(label="Enviar")
+
+
+def send_email(name, email, phone, text):
+    # Retrieve values from environment variables
+    sender_email = os.environ.get("GMAIL_ADDRESS")
+    sender_password = os.environ.get("GMAIL_APP_PASSWORD")
+    receiver_email = os.environ.get("MOM_EMAIL")
+
+    # Basic check to ensure environment variables are set
+    if not sender_email or not sender_password or not receiver_email:
+        print("Error: Email credentials or receiver email not set as environment variables.")
+        flash('Erro de configuração do servidor de e-mail.', 'danger')
+        return
+
+    message = f"Subject: Nova mensagem de contato do site!\n\nNome: {name}\nEmail: {email}\nTelefone: {phone}\nMensagem:\n{text}"
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, receiver_email, message.encode('utf-8'))
+        print("Email sent successfully!")
+        flash('Mensagem enviada com sucesso!', 'success')
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        flash('Erro ao enviar a mensagem.', 'danger')
+
+
+# def send_email(name, email, phone, text):
+#     # DIRECT ASSIGNMENT FOR TESTING (REPLACE WITH YOUR ACTUAL DETAILS)
+#     sender_email = "rennan.hora.araujo@gmail.com"  # <--- YOUR GMAIL ADDRESS
+#     sender_password = "vagf aklg gvbo ctxh"  # <--- YOUR GMAIL APP PASSWORD
+#     receiver_email = "re-hora@hotmail.com"  # <--- YOUR MOM'S EMAIL ADDRESS
+
+#     print(f"Email as bytes: {sender_email.encode('utf-8')}")
+#     print(f"Password as bytes: {sender_password.encode('utf-8')}")
+
+
+#     # Basic check to ensure values are provided (though now hardcoded)
+#     if not sender_email or not sender_password or not receiver_email:
+#         print("Error: Email credentials or receiver email are missing in direct assignment.")
+#         flash('Erro de configuração do servidor de e-mail.', 'danger')
+#         return
+
+#     message = f"Subject: Nova mensagem de contato do site!\n\nNome: {name}\nEmail: {email}\nTelefone: {phone}\nMensagem:\n{text}"
+
+#     try:
+#         # Use SSL for Gmail on port 465
+#         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+#             server.login(sender_email, sender_password)
+#             server.sendmail(sender_email, receiver_email, message.encode('utf-8'))
+#         print("Email sent successfully!")
+#         flash('Mensagem enviada com sucesso!', 'success')
+#     except Exception as e:
+#         print(f"Error sending email: {e}")
+#         flash('Erro ao enviar a mensagem.', 'danger')
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -56,10 +99,8 @@ def home():
         phone = contactform.phone.data
         text = contactform.text.data
 
-        contact_entry = Contact(name=name, email=email, phone=phone, text=text)
-        db.session.add(contact_entry)
-        db.session.commit()
-        return render_template("contactme.html")
+        send_email(name, email, phone, text)  # Call the send_email function
+        return redirect(url_for('home')) # Redirect to avoid resubmission
     else:
         return render_template("index.html", form=contactform, articles=post_objects)
 
@@ -72,4 +113,4 @@ def get_article(num):
     return render_template("artigos.html", full_post=requested_post)
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
