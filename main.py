@@ -27,6 +27,7 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_KEY", "mamae-maioral-te-amo")
 bootstrap = Bootstrap5(app)
 
+
 class ContactForm(FlaskForm):
     name = StringField(label="Nome Completo", validators=[DataRequired()])
     email = EmailField(label="Email", validators=[DataRequired()])
@@ -60,36 +61,6 @@ def send_email(name, email, phone, text):
         flash('Erro ao enviar a mensagem.', 'danger')
 
 
-# def send_email(name, email, phone, text):
-#     # DIRECT ASSIGNMENT FOR TESTING (REPLACE WITH YOUR ACTUAL DETAILS)
-#     sender_email = "rennan.hora.araujo@gmail.com"  # <--- YOUR GMAIL ADDRESS
-#     sender_password = "vagf aklg gvbo ctxh"  # <--- YOUR GMAIL APP PASSWORD
-#     receiver_email = "re-hora@hotmail.com"  # <--- YOUR MOM'S EMAIL ADDRESS
-
-#     print(f"Email as bytes: {sender_email.encode('utf-8')}")
-#     print(f"Password as bytes: {sender_password.encode('utf-8')}")
-
-
-#     # Basic check to ensure values are provided (though now hardcoded)
-#     if not sender_email or not sender_password or not receiver_email:
-#         print("Error: Email credentials or receiver email are missing in direct assignment.")
-#         flash('Erro de configuração do servidor de e-mail.', 'danger')
-#         return
-
-#     message = f"Subject: Nova mensagem de contato do site!\n\nNome: {name}\nEmail: {email}\nTelefone: {phone}\nMensagem:\n{text}"
-
-#     try:
-#         # Use SSL for Gmail on port 465
-#         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-#             server.login(sender_email, sender_password)
-#             server.sendmail(sender_email, receiver_email, message.encode('utf-8'))
-#         print("Email sent successfully!")
-#         flash('Mensagem enviada com sucesso!', 'success')
-#     except Exception as e:
-#         print(f"Error sending email: {e}")
-#         flash('Erro ao enviar a mensagem.', 'danger')
-
-
 @app.route('/', methods=["GET", "POST"])
 def home():
     contactform = ContactForm()
@@ -113,4 +84,4 @@ def get_article(num):
     return render_template("artigos.html", full_post=requested_post)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
